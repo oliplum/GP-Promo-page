@@ -1,11 +1,19 @@
 import Events from "./events";
 
-export default function ContentArea() {
+interface ContentAreaProps {
+  selectedEvents: Set<number>;
+  toggleEventSelection: (eventId: number, price: number, currency: string) => void;
+  onEventsLoaded: (events: any[]) => void;
+}
+
+export default function ContentArea({ selectedEvents, toggleEventSelection, onEventsLoaded }: ContentAreaProps) {
     return (
         <div className="content-area">
-<Events />
-
-
-  </div>
+          <Events 
+            selectedEvents={selectedEvents}
+            toggleEventSelection={toggleEventSelection}
+            onEventsLoaded={onEventsLoaded}
+          />
+        </div>
     );
 }

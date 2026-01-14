@@ -8,9 +8,11 @@ import Dialog from './dialog';
 
 interface EventCardProps {
   eventData: any;
+  isSelected: boolean;
+  onToggleSelection: () => void;
 }
 
-export default function EventCard({ eventData }: EventCardProps) {
+export default function EventCard({ eventData, isSelected, onToggleSelection }: EventCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPresenterDialogOpen, setIsPresenterDialogOpen] = useState(false);
   const [currentPresenterIndex, setCurrentPresenterIndex] = useState(0);
@@ -102,8 +104,13 @@ export default function EventCard({ eventData }: EventCardProps) {
             Access Event <FaArrowRight style={{ display: 'inline', marginLeft: '0.3rem' }} />
           </Link>
           <div className="purchase-section">
-            <input type="checkbox" id="purchase-checkbox" />
-            <label htmlFor="purchase-checkbox">Purchase</label>
+            <input 
+              type="checkbox" 
+              id={`purchase-checkbox-${event?.id}`}
+              checked={isSelected}
+              onChange={onToggleSelection}
+            />
+            <label htmlFor={`purchase-checkbox-${event?.id}`}>Purchase</label>
           </div>
         </div>
       </div>

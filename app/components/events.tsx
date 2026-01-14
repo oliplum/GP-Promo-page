@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 import EventCard from './event-card';
 
-export default function Events() {
+interface EventsProps {
+  selectedEvents: Set<number>;
+  toggleEventSelection: (eventId: number, price: number, currency: string) => void;
+  onEventsLoaded: (events: any[]) => void;
+}
+
+export default function Events({ selectedEvents, toggleEventSelection, onEventsLoaded }: EventsProps) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -15,7 +21,9 @@ export default function Events() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setEvents(data.events || []);
+        const loadedEvents = data.events || [];
+        setEvents(loadedEvents);
+        onEventsLoaded(loadedEvents);
       } catch (error) {
         console.error('Error fetching events:', error);
       } finally {
@@ -24,7 +32,7 @@ export default function Events() {
     }
     
     fetchEvents();
-  }, []);
+  }, [onEventsLoaded]);
   
   if (loading) {
     return <div>Loading events...</div>;
@@ -37,7 +45,16 @@ export default function Events() {
   return (
     <div>
       {events.map((eventData) => (
-        <EventCard key={eventData.event.id} eventData={eventData} />
+        <EventCard 
+          key={eventData.event.id} 
+          eventData={eventData}
+          isSelected={selectedEvents.has(eventData.event.id)}
+          onToggleSelection={() => toggleEventSelection(
+            eventData.event.id,
+            parseFloat(eventData.ticketPrice),
+            eventData.currency
+          )}
+        />
       ))}
     </div>
   );
