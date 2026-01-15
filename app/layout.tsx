@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import PayPalProvider from "./components/paypal-provider";
 import "./globals.css";
 
@@ -24,6 +25,7 @@ export default function RootLayout({
             {children}
           </div>
         </PayPalProvider>
+        <Analytics />
       </body>
     </html>
   );
