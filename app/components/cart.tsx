@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { FaArrowRight } from 'react-icons/fa';
 import Dialog from './dialog';
 
 interface CartProps {
@@ -15,6 +16,9 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
         lastName: '',
         email: ''
     });
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
+    const [checkoutSuccess, setCheckoutSuccess] = useState(false);
 
     const selectedCount = selectedEvents.size;
 
@@ -46,11 +50,61 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Handle form submission
-        console.log('Checkout data:', formData, { selectedEvents, total, currency });
-        alert('Form submitted! Check console for details.');
+        setCheckoutError(null);
+        
+        // Validate form
+        if (!formData.firstName || !formData.lastName || !formData.email) {
+            setCheckoutError('Please fill in all fields');
+            return;
+        }
+        
+        setIsProcessing(true);
+
+        try {
+            // Store checkout data in sessionStorage
+            sessionStorage.setItem('checkoutData', JSON.stringify({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                selectedEvents: Array.from(selectedEvents),
+                subtotal,
+                discountPercent,
+                discountAmount,
+                total,
+                currency
+            }));
+
+            // Create PayPal order
+            const response = await fetch('/api/paypal/create-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: total,
+                    currency: currency === '£' ? 'GBP' : currency
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create order');
+            }
+
+            // Redirect to PayPal
+            const approveLink = data.links?.find((link: any) => link.rel === 'approve')?.href;
+            if (approveLink) {
+                window.location.href = approveLink;
+            } else {
+                throw new Error('PayPal approval link not found');
+            }
+
+        } catch (error) {
+            console.error('Checkout error:', error);
+            setCheckoutError(error instanceof Error ? error.message : 'Failed to process payment');
+            setIsProcessing(false);
+        }
     };
 
     return (
@@ -78,19 +132,48 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                     <button 
                         className="cart-checkout-btn"
                         onClick={() => setShowCheckoutForm(true)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     >
-                        Proceed to Checkout
+                        <span>Next</span>
+                        <FaArrowRight />
                     </button>
                 </div>
             </div>
 
             <Dialog
                 isOpen={showCheckoutForm}
-                onClose={() => setShowCheckoutForm(false)}
-                title="Checkout Information"
+                onClose={() => {
+                    setShowCheckoutForm(false);
+                    setCheckoutError(null);
+                    setCheckoutSuccess(false);
+                }}
+                title={checkoutSuccess ? "Purchase Complete" : "Checkout Information"}
             >
-                <form onSubmit={handleSubmit} className="checkout-form">
-                    <div className="form-group">
+                {checkoutSuccess ? (
+                    <div style={{
+                        padding: '2rem',
+                        textAlign: 'center',
+                        color: '#16a34a'
+                    }}>
+                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>✓ Purchase Complete!</h3>
+                        <p>Thank you for your purchase. You will receive a confirmation email shortly.</p>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} className="checkout-form">
+                        {checkoutError && (
+                            <div style={{
+                                padding: '1rem',
+                                backgroundColor: '#fee',
+                                border: '1px solid #fcc',
+                                borderRadius: '4px',
+                                color: '#c00',
+                                marginBottom: '1rem',
+                                fontSize: '0.9rem'
+                            }}>
+                                {checkoutError}
+                            </div>
+                        )}
+                        <div className="form-group">
                         <label htmlFor="firstName">First Name *</label>
                         <input
                             type="text"
@@ -124,13 +207,45 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                         />
                     </div>
                     <div className="checkout-summary">
+                        <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Selected Workshops:</h4>
+                        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f9f9f9', borderRadius: '4px' }}>
+                            {selectedEventData.map((eventData) => (
+                                <div key={eventData.event.id} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e0e0e0' }}>
+                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.25rem', color: '#000' }}>
+                                        {eventData.event.title}
+                                    </div>
+                                    {eventData.presenters && eventData.presenters.length > 0 && (
+                                        <div style={{ fontSize: '0.85rem', color: '#333' }}>
+                                            {eventData.presenters.map((p: any) => `${p.title} ${p.first_name} ${p.last_name}${p.honors ? ` ${p.honors}` : ''}`).join(', ')}
+                                        </div>
+                                    )}
+                                    <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>
+                                        <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#fff' }}>
+                                            {currency} {parseFloat(eventData.ticketPrice).toFixed(2)}
+                                        </span>
+                                        <span style={{ color: '#22c55e', fontWeight: '600' }}>
+                                            {currency} {(parseFloat(eventData.ticketPrice) * (1 - discountPercent / 100)).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                            <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#fff' }}>
+                                Original: {currency} {subtotal.toFixed(2)}
+                            </span>
+                            <span style={{ color: '#22c55e', fontWeight: '600' }}>
+                                ({discountPercent}% off)
+                            </span>
+                        </p>
                         <p><strong>Total: {currency} {total.toFixed(2)}</strong></p>
                         <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</p>
                     </div>
-                    <button type="submit" className="checkout-submit-btn">
-                        Complete Checkout
+                    <button type="submit" className="checkout-submit-btn" disabled={isProcessing}>
+                        {isProcessing ? 'Redirecting to PayPal...' : 'Proceed to PayPal'}
                     </button>
                 </form>
+                )}
             </Dialog>
         </>
     );

@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Footer() {
-    return (
+    return ( 
         <div className="footer-area">
             <Link 
                 href="https://globalpodium.com" 
@@ -12,13 +12,13 @@ export default function Footer() {
             >
                 <p>&copy; {new Date().getFullYear()} GlobalPodium Ltd</p>
                 <Image 
-                    src="/GP globe.png" 
+                    src="/GP globe.png"  
                     alt="GlobalPodium Logo" 
                     width={30} 
                     height={30} 
-                    className="footer-logo"
+                    className="footer-logo" 
                 />
-            </Link>
+            </Link> 
         </div>
     );
 }
