@@ -166,6 +166,7 @@ body {
   grid-column: 2;
   grid-row: 5;
   padding: 5px;
+  padding-bottom: 150px; /* Space for fixed cart */
   background-color: var(--event-back);
 }
 
@@ -463,11 +464,17 @@ body {
 
 /* Horizontal Cart Section */
 .cart-section {
-  grid-column: 2;
-  grid-row: 6;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1000px, 100%);
+  max-width: calc(100% - 2rem);
   background-color: var(--event-back);
   border-top: 2px solid var(--key-color);
   padding: 1rem 2rem;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 100;
 }
 
 .cart-horizontal {
@@ -729,6 +736,7 @@ body {
     max-height: none;
     min-height: calc(100vh - 200px);
     padding: 5px;
+    padding-bottom: 200px; /* Space for fixed cart on mobile */
     box-sizing: border-box;
     overflow-x: hidden;
     width: 100%;
