@@ -13,6 +13,56 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// GET endpoint to retrieve pending order data
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const orderID = searchParams.get('orderID');
+
+    if (!orderID) {
+      return NextResponse.json(
+        { error: 'Order ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const result = await pool.query(
+      `SELECT first_name, last_name, email, selected_events, subtotal, discount_percent, discount_amount, total, currency
+       FROM pending_orders
+       WHERE paypal_order_id = $1 AND expires_at > NOW()`,
+      [orderID]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'Order not found or expired' },
+        { status: 404 }
+      );
+    }
+
+    const order = result.rows[0];
+    return NextResponse.json({
+      checkoutData: {
+        firstName: order.first_name,
+        lastName: order.last_name,
+        email: order.email,
+        selectedEvents: order.selected_events,
+        subtotal: parseFloat(order.subtotal),
+        discountPercent: order.discount_percent,
+        discountAmount: parseFloat(order.discount_amount),
+        total: parseFloat(order.total),
+        currency: order.currency
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching pending order:', error);
+    return NextResponse.json(
+      { error: 'Failed to retrieve order data' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   const client = await pool.connect();
   
@@ -56,6 +106,14 @@ export async function POST(request: Request) {
     );
 
     const saleId = saleResult.rows[0].id;
+
+    // Delete the pending order now that it's processed
+    if (paypalOrderId) {
+      await client.query(
+        'DELETE FROM pending_orders WHERE paypal_order_id = $1',
+        [paypalOrderId]
+      );
+    }
 
     await client.query('COMMIT');
 

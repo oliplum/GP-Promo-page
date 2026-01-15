@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
+import { Pool } from 'pg';
 
 const PAYPAL_API = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com';
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes('neon.tech') ? { rejectUnauthorized: false } : undefined
+});
 
 async function getAccessToken() {
   const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64');
@@ -22,7 +28,7 @@ async function getAccessToken() {
 
 export async function POST(request: Request) {
   try {
-    const { amount, currency } = await request.json();
+    const { amount, currency, checkoutData } = await request.json();
 
     const accessToken = await getAccessToken();
 
@@ -67,6 +73,37 @@ export async function POST(request: Request) {
     const approveUrl = order.links?.find((link: any) => link.rel === 'approve')?.href;
     
     console.log('Approve URL:', approveUrl);
+
+    // Store checkout data in database for retrieval after PayPal redirect
+    if (checkoutData) {
+      await pool.query(
+        `INSERT INTO pending_orders 
+        (paypal_order_id, first_name, last_name, email, selected_events, subtotal, discount_percent, discount_amount, total, currency)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        ON CONFLICT (paypal_order_id) DO UPDATE SET
+          first_name = EXCLUDED.first_name,
+          last_name = EXCLUDED.last_name,
+          email = EXCLUDED.email,
+          selected_events = EXCLUDED.selected_events,
+          subtotal = EXCLUDED.subtotal,
+          discount_percent = EXCLUDED.discount_percent,
+          discount_amount = EXCLUDED.discount_amount,
+          total = EXCLUDED.total,
+          currency = EXCLUDED.currency`,
+        [
+          order.id,
+          checkoutData.firstName,
+          checkoutData.lastName,
+          checkoutData.email,
+          checkoutData.selectedEvents,
+          checkoutData.subtotal,
+          checkoutData.discountPercent,
+          checkoutData.discountAmount,
+          checkoutData.total,
+          checkoutData.currency
+        ]
+      );
+    }
 
     return NextResponse.json({ 
       orderID: order.id, 

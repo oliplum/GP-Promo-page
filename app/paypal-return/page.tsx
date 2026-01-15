@@ -20,12 +20,21 @@ function PayPalReturnContent() {
       }
 
       try {
+        // Try to get from sessionStorage first (for backwards compatibility)
+        let checkoutData;
         const checkoutDataStr = sessionStorage.getItem('checkoutData');
-        if (!checkoutDataStr) {
-          throw new Error('Checkout data not found');
+        
+        if (checkoutDataStr) {
+          checkoutData = JSON.parse(checkoutDataStr);
+        } else {
+          // Fetch from database using the token (PayPal order ID)
+          const response = await fetch(`/api/checkout?orderID=${token}`);
+          if (!response.ok) {
+            throw new Error('Checkout data not found. Please contact support.');
+          }
+          const data = await response.json();
+          checkoutData = data.checkoutData;
         }
-
-        const checkoutData = JSON.parse(checkoutDataStr);
 
         // Capture the payment
         const captureResponse = await fetch('/api/paypal/capture-order', {

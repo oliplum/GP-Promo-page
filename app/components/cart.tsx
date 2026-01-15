@@ -63,8 +63,8 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
         setIsProcessing(true);
 
         try {
-            // Store checkout data in sessionStorage
-            sessionStorage.setItem('checkoutData', JSON.stringify({
+            // Store checkout data in sessionStorage (backup method)
+            const checkoutData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
@@ -74,15 +74,18 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                 discountAmount,
                 total,
                 currency
-            }));
+            };
+            
+            sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
 
-            // Create PayPal order
+            // Create PayPal order and send checkout data to be stored in database
             const response = await fetch('/api/paypal/create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     amount: total,
-                    currency: currency === '£' ? 'GBP' : currency
+                    currency: currency === '£' ? 'GBP' : currency,
+                    checkoutData: checkoutData
                 })
             });
 
