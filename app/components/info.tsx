@@ -23,7 +23,7 @@ export default function Info() {
                         </p>
                         <div className="text-right">
                             <a 
-                                href="mailto:oli@globalpodium.com?subject=Multiple%20Licences%20and%20Trust%20Purchases%20-%20CBTReach" 
+                                href="mailto:oli@globalpodium.com?subject=CBTReach%20-%20Multiple%20Licences%2C%20Trust%20Purchases%20%26%20Technical%20Help" 
                                 className="select-all-button"
                                 style={{ textDecoration: 'none' }}
                             >
