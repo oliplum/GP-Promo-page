@@ -111,8 +111,12 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('PayPal create order error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create PayPal order';
     return NextResponse.json(
-      { error: 'Failed to create PayPal order' },
+      { 
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : String(error)
+      },
       { status: 500 }
     );
   }

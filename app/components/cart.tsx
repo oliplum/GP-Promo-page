@@ -95,7 +95,8 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
 
             if (!response.ok || !data.approveUrl) {
                 console.error('Order creation failed:', data);
-                throw new Error('Failed to create order');
+                const errorMsg = data.error || data.details || 'Failed to create order';
+                throw new Error(errorMsg);
             }
 
             console.log('Redirecting to PayPal:', data.approveUrl);
