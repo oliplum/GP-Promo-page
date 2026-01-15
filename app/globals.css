@@ -470,7 +470,7 @@ body {
   transform: translateX(-50%);
   width: min(1000px, 100%);
   max-width: calc(100% - 2rem);
-  background-color: var(--event-back);
+  background-color: #505050;
   border-top: 2px solid var(--key-color);
   padding: 1rem 2rem;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
@@ -500,7 +500,7 @@ body {
 
 .cart-items {
   font-size: 0.85rem;
-  color: #666;
+  color: #ffffff;
 }
 
 .cart-pricing {
@@ -517,7 +517,7 @@ body {
 
 .cart-label {
   font-size: 0.75rem;
-  color: #999;
+  color: #ffffff;
   text-transform: uppercase;
 }
 
