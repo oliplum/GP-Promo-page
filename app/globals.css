@@ -729,7 +729,7 @@ body {
   }
 
   .header-overlay-text h2 {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
   
   .content-area {
@@ -818,6 +818,8 @@ body {
     left: 0;
     right: 0;
     width: 100%;
+    max-width: 100%;
+    transform: none;
     z-index: 1000;
     padding: 0.5rem 0.75rem;
     grid-column: 1 / -1;
