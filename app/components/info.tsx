@@ -19,7 +19,7 @@ export default function Info() {
                     </ul>
                     <div className="border-t pt-3 mt-3">
                         <p className="text-sm mb-2">
-                            For multiple licences and Trust purchases, please contact us directly to discuss your requirements and receive a bespoke quote.
+                            For multiple licences and Trust purchases, and technical help, please contact us directly to discuss your requirements and receive a bespoke quote.
                         </p>
                         <div className="text-right">
                             <a 
