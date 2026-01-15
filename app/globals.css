@@ -458,7 +458,8 @@ background-color: var(--event-back);
 }
 
 .rounded-corners {
-  border-radius: 15px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* Horizontal Cart Section */
