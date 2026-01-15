@@ -9,7 +9,7 @@ export default function Header() {
       <div className="header-right">
         <Image src="/DSC_7473.jpg" alt="DSC 7473" fill style={{ objectFit: 'cover' }} />
         <div className="header-overlay-text">
-          <h2>Welcome to the CBTReach Big New Year Sale 2026!</h2>
+          <h3>Welcome to the CBTReach Big New Year Sale 2026!</h3>
         </div>
       </div>
     </div>

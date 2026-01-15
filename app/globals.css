@@ -123,7 +123,8 @@ body {
   font-size: 1.2rem;
   font-weight: 600;
   padding: 8px;
-background-color: var(--event-back);
+  background-color: var(--event-back);
+  text-align: center;
 }
 
   .info-area {
@@ -1057,3 +1058,4 @@ background-color: var(--event-back);
 .presenter-bio-text p {
   margin: 0.5rem 0;
 }
+
