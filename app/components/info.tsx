@@ -11,7 +11,7 @@ export default function Info() {
                     <p className="font-semibold mb-2">All our workshops include:</p>
                     <ul className="list-disc pl-5 space-y-1 mb-3">
                         <li>A CPD certificate of attendance upon completion</li>
-                        <li>Any-time access for the lifetime of the event</li>
+                        <li>Any-time access for 3 months</li>
                         <li>Full set of resources as provided by the presenter</li>
                         <li>Instant access (when purchased individually)</li>
                     </ul>
