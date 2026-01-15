@@ -2,7 +2,7 @@
 
 interface DiscountProps {
     selectedEvents: Set<number>;
-    allEvents: any[];
+    allEvents: Array<{event: {id: number}}>;
     onSelectAll: () => void;
     onDeselectAll: () => void;
 }

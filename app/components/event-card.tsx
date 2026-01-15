@@ -91,7 +91,11 @@ export default function EventCard({ eventData, isSelected, onToggleSelection }: 
         <div className="event-section-info">
           <ul>
             <li>CPD Hours: {cpdHours}</li>
-            <li>Price: {currency} {ticketPrice}</li>
+            <li>
+              Price: <span style={{ textDecoration: 'line-through', color: '#999' }}>{currency} {ticketPrice}</span>{' '}
+              <strong style={{ color: '#d32f2f' }}>{currency} {(parseFloat(ticketPrice) * 0.5).toFixed(2)}</strong>{' '}
+              <span style={{ color: '#d32f2f', fontSize: '0.9em' }}>(50% off)</span>
+            </li>
           </ul>
         </div>
         <div className="event-section-interact">

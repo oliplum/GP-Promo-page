@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-export default function PayPalReturn() {
+function PayPalReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
@@ -20,7 +20,6 @@ export default function PayPalReturn() {
       }
 
       try {
-        // Get checkout data from sessionStorage
         const checkoutDataStr = sessionStorage.getItem('checkoutData');
         if (!checkoutDataStr) {
           throw new Error('Checkout data not found');
@@ -52,10 +51,10 @@ export default function PayPalReturn() {
           })
         });
 
-        const saleResult = await saleResponse.json();
-
         if (!saleResponse.ok) {
-          throw new Error(saleResult.error || 'Failed to record sale');
+          const saleResult = await saleResponse.json();
+          console.error('Sale API error:', saleResult);
+          throw new Error(saleResult.error || saleResult.details || 'Failed to record sale');
         }
 
         // Clear checkout data
@@ -136,5 +135,13 @@ export default function PayPalReturn() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PayPalReturn() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>Loading...</div>}>
+      <PayPalReturnContent />
+    </Suspense>
   );
 }

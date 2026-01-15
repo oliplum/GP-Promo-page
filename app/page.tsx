@@ -11,9 +11,9 @@ import Cart from "./components/cart";
 
 export default function Home() {
   const [selectedEvents, setSelectedEvents] = useState<Set<number>>(new Set());
-  const [allEvents, setAllEvents] = useState<any[]>([]);
+  const [allEvents, setAllEvents] = useState<Array<{event: {id: number; title: string}; ticketPrice: string; currency: string; presenters?: Array<{title: string; first_name: string; last_name: string; honors?: string}>}>>([]);
 
-  const toggleEventSelection = (eventId: number, price: number, currency: string) => {
+  const toggleEventSelection = (eventId: number) => {
     setSelectedEvents(prev => {
       const newSet = new Set(prev);
       if (newSet.has(eventId)) {
@@ -52,6 +52,7 @@ export default function Home() {
       <Footer />
       <Info />
       <div className="right"></div>
+      <div className="shadow-right"></div>
     </>
   );
 }

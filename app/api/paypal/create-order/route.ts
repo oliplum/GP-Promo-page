@@ -46,6 +46,7 @@ export async function POST(request: Request) {
         application_context: {
           brand_name: 'CBTReach',
           landing_page: 'NO_PREFERENCE',
+          shipping_preference: 'NO_SHIPPING',
           user_action: 'PAY_NOW',
           return_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/paypal-return`,
           cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/paypal-cancel`,
@@ -54,12 +55,23 @@ export async function POST(request: Request) {
     });
 
     const order = await response.json();
+    
+    console.log('PayPal order response status:', response.status);
+    console.log('PayPal order response:', JSON.stringify(order, null, 2));
 
     if (!response.ok) {
+      console.error('PayPal order creation failed:', order);
       throw new Error(order.message || 'Failed to create PayPal order');
     }
 
-    return NextResponse.json({ orderID: order.id, links: order.links });
+    const approveUrl = order.links?.find((link: any) => link.rel === 'approve')?.href;
+    
+    console.log('Approve URL:', approveUrl);
+
+    return NextResponse.json({ 
+      orderID: order.id, 
+      approveUrl
+    });
   } catch (error) {
     console.error('PayPal create order error:', error);
     return NextResponse.json(

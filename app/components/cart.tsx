@@ -6,7 +6,7 @@ import Dialog from './dialog';
 
 interface CartProps {
     selectedEvents: Set<number>;
-    allEvents: any[];
+    allEvents: Array<{event: {id: number; title: string}; ticketPrice: string; currency: string; presenters?: Array<{title: string; first_name: string; last_name: string; honors?: string}>}>;
 }
 
 export default function Cart({ selectedEvents, allEvents }: CartProps) {
@@ -28,7 +28,7 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
 
     // Calculate pricing
     const selectedEventData = allEvents.filter(e => selectedEvents.has(e.event.id));
-    const subtotal = selectedEventData.reduce((sum, e) => sum + parseFloat(e.ticketPrice || 0), 0);
+    const subtotal = selectedEventData.reduce((sum, e) => sum + parseFloat(e.ticketPrice || '0'), 0);
 
     // Calculate discount tier
     let discountPercent = 50; // Base 50% off
@@ -87,18 +87,18 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
             });
 
             const data = await response.json();
+            
+            console.log('Create order response:', data);
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to create order');
+            if (!response.ok || !data.approveUrl) {
+                console.error('Order creation failed:', data);
+                throw new Error('Failed to create order');
             }
 
-            // Redirect to PayPal
-            const approveLink = data.links?.find((link: any) => link.rel === 'approve')?.href;
-            if (approveLink) {
-                window.location.href = approveLink;
-            } else {
-                throw new Error('PayPal approval link not found');
-            }
+            console.log('Redirecting to PayPal:', data.approveUrl);
+            
+            // Simple redirect to PayPal
+            window.location.href = data.approveUrl;
 
         } catch (error) {
             console.error('Checkout error:', error);
@@ -162,13 +162,13 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                     <form onSubmit={handleSubmit} className="checkout-form">
                         {checkoutError && (
                             <div style={{
-                                padding: '1rem',
+                                padding: '0.75rem',
                                 backgroundColor: '#fee',
                                 border: '1px solid #fcc',
                                 borderRadius: '4px',
                                 color: '#c00',
-                                marginBottom: '1rem',
-                                fontSize: '0.9rem'
+                                marginBottom: '0.75rem',
+                                fontSize: '0.85rem'
                             }}>
                                 {checkoutError}
                             </div>
@@ -207,20 +207,20 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                         />
                     </div>
                     <div className="checkout-summary">
-                        <h4 style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>Selected Workshops:</h4>
-                        <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', padding: '0.5rem', backgroundColor: '#f9f9f9', borderRadius: '4px' }}>
+                        <h4 style={{ marginBottom: '0.5rem', fontSize: '0.95rem' }}>Selected Workshops:</h4>
+                        <div style={{ maxHeight: '180px', overflowY: 'auto', marginBottom: '0.75rem', padding: '0.5rem', backgroundColor: '#f9f9f9', borderRadius: '4px' }}>
                             {selectedEventData.map((eventData) => (
-                                <div key={eventData.event.id} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e0e0e0' }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.25rem', color: '#000' }}>
+                                <div key={eventData.event.id} style={{ marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e0e0e0' }}>
+                                    <div style={{ fontWeight: '600', fontSize: '0.85rem', marginBottom: '0.2rem', color: '#000' }}>
                                         {eventData.event.title}
                                     </div>
                                     {eventData.presenters && eventData.presenters.length > 0 && (
-                                        <div style={{ fontSize: '0.85rem', color: '#333' }}>
-                                            {eventData.presenters.map((p: any) => `${p.title} ${p.first_name} ${p.last_name}${p.honors ? ` ${p.honors}` : ''}`).join(', ')}
+                                        <div style={{ fontSize: '0.8rem', color: '#333' }}>
+                                            {eventData.presenters.map((p: {title: string; first_name: string; last_name: string; honors?: string}) => `${p.title} ${p.first_name} ${p.last_name}${p.honors ? ` ${p.honors}` : ''}`).join(', ')}
                                         </div>
                                     )}
-                                    <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>
-                                        <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#fff' }}>
+                                    <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>
+                                        <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#999' }}>
                                             {currency} {parseFloat(eventData.ticketPrice).toFixed(2)}
                                         </span>
                                         <span style={{ color: '#22c55e', fontWeight: '600' }}>
@@ -230,16 +230,16 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                                 </div>
                             ))}
                         </div>
-                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                            <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#fff' }}>
+                        <p style={{ fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+                            <span style={{ textDecoration: 'line-through', marginRight: '0.5rem' }}>
                                 Original: {currency} {subtotal.toFixed(2)}
                             </span>
                             <span style={{ color: '#22c55e', fontWeight: '600' }}>
                                 ({discountPercent}% off)
                             </span>
                         </p>
-                        <p><strong>Total: {currency} {total.toFixed(2)}</strong></p>
-                        <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</p>
+                        <p style={{ marginBottom: '0.5rem' }}><strong>Total: {currency} {total.toFixed(2)}</strong></p>
+                        <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</p>
                     </div>
                     <button type="submit" className="checkout-submit-btn" disabled={isProcessing}>
                         {isProcessing ? 'Redirecting to PayPal...' : 'Proceed to PayPal'}

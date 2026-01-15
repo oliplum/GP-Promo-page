@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database for promo_site
+  promo_db:
+    image: postgres:16-alpine
+    container_name: promo_site_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - promo_db_data:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"  # External port 5433 to avoid conflict with other postgres
+    networks:
+      - promo_network
+
+  # Next.js application
+  promo_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: promo_site_app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"  # Using port 3001 instead of 3000
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@promo_db:5432/${POSTGRES_DB}
+      - PGHOST=promo_db
+      - PGPORT=5432
+      - PGUSER=${POSTGRES_USER}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
+      - PGDATABASE=${POSTGRES_DB}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - PAYPAL_MODE=${PAYPAL_MODE}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_TO=${EMAIL_TO}
+    depends_on:
+      - promo_db
+    networks:
+      - promo_network
+
+networks:
+  promo_network:
+    driver: bridge
+
+volumes:
+  promo_db_data:
+    driver: local
