@@ -78,7 +78,7 @@ export default function EventCard({ eventData, isSelected, onToggleSelection }: 
               </button>
             </div>
             <p className="event-subtitle">
-              Presented by: 
+              Presented by:&nbsp;
               <button 
                 className="presenter-link" 
                 onClick={() => setIsPresenterDialogOpen(true)}
