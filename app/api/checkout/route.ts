@@ -117,18 +117,10 @@ export async function POST(request: Request) {
 
     await client.query('COMMIT');
 
-    // Return success immediately - emails are optional
-    const response = {
-      success: true,
-      message: 'Purchase completed successfully',
-      saleId
-    };
-
-    // Send emails in background (non-blocking)
-    setImmediate(async () => {
-      try {
-        // Send email to purchaser
-        const purchaserEmailHtml = `
+    // Send emails BEFORE returning response (required for Vercel serverless)
+    try {
+      // Send email to purchaser
+      const purchaserEmailHtml = `
         <h2>Thank you for your purchase!</h2>
         <p>Dear ${firstName} ${lastName},</p>
         <p>Thank you for using the CBTReach promotions page. We need to create these logins for you manually, and this will take up to 24 hours - we will mail confirmation to you when complete.</p>
@@ -184,10 +176,14 @@ export async function POST(request: Request) {
       console.log('Emails sent successfully');
     } catch (emailError) {
       console.error('Email sending failed (non-critical):', emailError);
+      // Continue even if email fails - sale is already recorded
     }
-    });
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      success: true,
+      message: 'Purchase completed successfully',
+      saleId
+    });
 
   } catch (error) {
     await client.query('ROLLBACK');
