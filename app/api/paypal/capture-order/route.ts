@@ -24,7 +24,11 @@ export async function POST(request: Request) {
   try {
     const { orderID } = await request.json();
 
+    console.log('=== CAPTURING PAYPAL ORDER ===');
+    console.log('Order ID:', orderID);
+
     const accessToken = await getAccessToken();
+    console.log('Access token obtained');
 
     const response = await fetch(`${PAYPAL_API}/v2/checkout/orders/${orderID}/capture`, {
       method: 'POST',
@@ -35,16 +39,27 @@ export async function POST(request: Request) {
     });
 
     const captureData = await response.json();
+    
+    console.log('Capture response status:', response.status);
+    console.log('Capture response data:', JSON.stringify(captureData, null, 2));
 
     if (!response.ok) {
-      throw new Error(captureData.message || 'Failed to capture PayPal order');
+      console.error('❌ PayPal capture failed:', captureData);
+      throw new Error(captureData.message || captureData.details?.[0]?.description || 'Failed to capture PayPal order');
     }
 
+    // Check if capture was actually successful
+    if (captureData.status !== 'COMPLETED') {
+      console.error('❌ PayPal order not completed. Status:', captureData.status);
+      throw new Error(`Order status is ${captureData.status}, expected COMPLETED`);
+    }
+
+    console.log('✅ PayPal capture successful');
     return NextResponse.json(captureData);
   } catch (error) {
-    console.error('PayPal capture order error:', error);
+    console.error('❌ PayPal capture order error:', error);
     return NextResponse.json(
-      { error: 'Failed to capture PayPal order' },
+      { error: 'Failed to capture PayPal order', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

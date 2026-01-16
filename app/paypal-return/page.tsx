@@ -13,6 +13,9 @@ function PayPalReturnContent() {
     const processPayment = async () => {
       const token = searchParams.get('token');
       
+      console.log('=== PAYPAL RETURN PAGE ===');
+      console.log('Token (Order ID):', token);
+      
       if (!token) {
         setStatus('error');
         setMessage('Payment information missing');
@@ -25,18 +28,26 @@ function PayPalReturnContent() {
         const checkoutDataStr = sessionStorage.getItem('checkoutData');
         
         if (checkoutDataStr) {
+          console.log('✓ Found checkout data in sessionStorage');
           checkoutData = JSON.parse(checkoutDataStr);
         } else {
+          console.log('Fetching checkout data from database...');
           // Fetch from database using the token (PayPal order ID)
           const response = await fetch(`/api/checkout?orderID=${token}`);
           if (!response.ok) {
+            const errorData = await response.json();
+            console.error('❌ Failed to fetch checkout data:', errorData);
             throw new Error('Checkout data not found. Please contact support.');
           }
           const data = await response.json();
           checkoutData = data.checkoutData;
+          console.log('✓ Checkout data retrieved from database');
         }
 
+        console.log('Checkout data:', checkoutData);
+
         // Capture the payment
+        console.log('Attempting to capture PayPal payment...');
         const captureResponse = await fetch('/api/paypal/capture-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -44,12 +55,19 @@ function PayPalReturnContent() {
         });
 
         const captureResult = await captureResponse.json();
+        
+        console.log('Capture response status:', captureResponse.status);
+        console.log('Capture result:', captureResult);
 
         if (!captureResponse.ok) {
-          throw new Error('Payment capture failed');
+          console.error('❌ Payment capture failed:', captureResult);
+          throw new Error(captureResult.error || captureResult.details || 'Payment capture failed');
         }
 
+        console.log('✓ Payment captured successfully');
+
         // Record the sale
+        console.log('Recording sale in database...');
         const saleResponse = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -62,9 +80,11 @@ function PayPalReturnContent() {
 
         if (!saleResponse.ok) {
           const saleResult = await saleResponse.json();
-          console.error('Sale API error:', saleResult);
+          console.error('❌ Sale recording failed:', saleResult);
           throw new Error(saleResult.error || saleResult.details || 'Failed to record sale');
         }
+
+        console.log('✓ Sale recorded successfully');
 
         // Clear checkout data
         sessionStorage.removeItem('checkoutData');
@@ -78,7 +98,7 @@ function PayPalReturnContent() {
         }, 3000);
 
       } catch (error) {
-        console.error('Payment processing error:', error);
+        console.error('❌ Payment processing error:', error);
         setStatus('error');
         setMessage(error instanceof Error ? error.message : 'Payment processing failed');
       }
