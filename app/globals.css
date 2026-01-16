@@ -12,12 +12,14 @@
   --white-fade: #749aa5;
 }
 
+/* Dark mode disabled for consistent appearance across devices
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
+*/
 
 body {
   background: var(--background);
