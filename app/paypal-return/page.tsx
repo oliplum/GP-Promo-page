@@ -66,6 +66,10 @@ function PayPalReturnContent() {
 
         console.log('✓ Payment captured successfully');
 
+        // Extract the actual capture ID from PayPal response
+        const captureId = captureResult.purchase_units?.[0]?.payments?.captures?.[0]?.id || captureResult.id;
+        console.log('Capture ID:', captureId);
+
         // Record the sale
         console.log('Recording sale in database...');
         const saleResponse = await fetch('/api/checkout', {
@@ -74,7 +78,7 @@ function PayPalReturnContent() {
           body: JSON.stringify({
             ...checkoutData,
             paypalOrderId: token,
-            paypalCaptureId: captureResult.id
+            paypalCaptureId: captureId
           })
         });
 
