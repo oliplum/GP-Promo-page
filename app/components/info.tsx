@@ -8,7 +8,7 @@ export default function Info() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                     <p className="mb-2">We offer evidence-based CPD workshops for mental health professionals that are professional and outcome focussed.</p>
-                    <p className="mb-2">Learn practical, clinically relevant skills from internationally respected presenters, and earn CPD hours; all now 50% off.</p>
+                    <p className="mb-2"><strong>Learn practical, clinically relevant skills from internationally respected presenters, and earn CPD hours; all now 50% off.</strong></p>
                     <p className="mb-2">For instant access to individual events, please click the &apos;Access Event&apos; button, and use the paywall built into each event. For multiple purchases, please select your options below, and complete payment – we will endeavour to register you on your selections within 24 hours.</p>
                 </div>
                 <div>
