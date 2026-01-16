@@ -65,9 +65,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const client = await pool.connect();
+  let body: any = {};
   
   try {
-    const body = await request.json();
+    body = await request.json();
     console.log('Checkout request body:', body);
     
     const { firstName, lastName, email, selectedEvents, total, currency, discountPercent, subtotal, discountAmount, paypalOrderId, paypalCaptureId } = body;
