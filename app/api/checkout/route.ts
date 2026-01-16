@@ -189,6 +189,37 @@ export async function POST(request: Request) {
     await client.query('ROLLBACK');
     console.error('Checkout error:', error);
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    
+    // Send error notification email to admin
+    try {
+      const errorEmailHtml = `
+        <h2>❌ Checkout Error Alert</h2>
+        <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+        <p><strong>Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}</p>
+        <p><strong>Customer Details:</strong></p>
+        <ul>
+          <li>Name: ${body.firstName || 'N/A'} ${body.lastName || 'N/A'}</li>
+          <li>Email: ${body.email || 'N/A'}</li>
+          <li>Total: ${body.currency || '?'} ${body.total || 'N/A'}</li>
+          <li>PayPal Order ID: ${body.paypalOrderId || 'N/A'}</li>
+          <li>PayPal Capture ID: ${body.paypalCaptureId || 'N/A'}</li>
+        </ul>
+        <p><strong>Stack Trace:</strong></p>
+        <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto;">${error instanceof Error ? error.stack : 'No stack trace available'}</pre>
+        <p><strong>Request Body:</strong></p>
+        <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto;">${JSON.stringify(body, null, 2)}</pre>
+      `;
+
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: process.env.ADMIN_EMAIL,
+        subject: '🚨 URGENT: CBTReach Checkout Error',
+        html: errorEmailHtml,
+      });
+    } catch (emailError) {
+      console.error('Failed to send error notification email:', emailError);
+    }
+    
     return NextResponse.json(
       { error: 'Failed to process checkout', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
