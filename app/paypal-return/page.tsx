@@ -117,11 +117,17 @@ function PayPalReturnContent() {
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
+      width: '100vw',
       padding: '2rem',
-      textAlign: 'center'
+      textAlign: 'center',
+      margin: 0,
+      position: 'fixed',
+      top: 0,
+      left: 0
     }}>
       <div style={{
         maxWidth: '500px',
+        width: '100%',
         padding: '2rem',
         backgroundColor: '#fff',
         borderRadius: '8px',

@@ -246,7 +246,7 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                         <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</p>
                     </div>
                     <button type="submit" className="checkout-submit-btn" disabled={isProcessing}>
-                        {isProcessing ? 'Redirecting to PayPal...' : 'Proceed to PayPal'}
+                        {isProcessing ? 'Redirecting to PayPal...' : 'Proceed to Credit Card/PayPal'}
                     </button>
                 </form>
                 )}
