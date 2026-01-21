@@ -282,8 +282,8 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
             >
                 <div style={{ padding: '1rem' }}>
                     <p style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                        For single workshop purchases, registering directly through the event is quicker and gives you immediate access. 
-                        It&apos;s the same registration process as this form (which is to enable multiple purchases), but faster for you!
+                        For single workshop purchases, registering directly through each event directly is quicker and gives you immediate access. 
+                        It&apos;s the same registration - and discount - as this form (which is to enable multiple purchases), but faster for you!
                     </p>
                     <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
                         <button 
