@@ -6,11 +6,12 @@ import Dialog from './dialog';
 
 interface CartProps {
     selectedEvents: Set<number>;
-    allEvents: Array<{event: {id: number; title: string}; ticketPrice: string; currency: string; presenters?: Array<{title: string; first_name: string; last_name: string; honors?: string}>}>;
+    allEvents: Array<{event: {id: number; title: string; event_no?: string}; ticketPrice: string; currency: string; presenters?: Array<{title: string; first_name: string; last_name: string; honors?: string}>}>;
 }
 
 export default function Cart({ selectedEvents, allEvents }: CartProps) {
     const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+    const [showSingleEventAlert, setShowSingleEventAlert] = useState(false);
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -42,6 +43,28 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
     const discountAmount = subtotal * (discountPercent / 100);
     const total = subtotal - discountAmount;
     const currency = allEvents.length > 0 ? allEvents[0].currency : 'USD';
+
+    const handleNextClick = () => {
+        if (selectedCount === 1) {
+            setShowSingleEventAlert(true);
+        } else {
+            setShowCheckoutForm(true);
+        }
+    };
+
+    const handleProceedWithForm = () => {
+        setShowSingleEventAlert(false);
+        setShowCheckoutForm(true);
+    };
+
+    const handleGoToEvent = () => {
+        const selectedEventData = allEvents.find(e => selectedEvents.has(e.event.id));
+        if (selectedEventData && selectedEventData.event && selectedEventData.event.event_no) {
+            const eventNo = selectedEventData.event.event_no;
+            window.open(`http://app-4.globalpodium.com/watch/${eventNo}`, '_blank');
+        }
+        setShowSingleEventAlert(false);
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -135,7 +158,7 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                     </div>
                     <button 
                         className="cart-checkout-btn"
-                        onClick={() => setShowCheckoutForm(true)}
+                        onClick={handleNextClick}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     >
                         <span>Next</span>
@@ -250,6 +273,50 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                     </button>
                 </form>
                 )}
+            </Dialog>
+
+            <Dialog
+                isOpen={showSingleEventAlert}
+                onClose={() => setShowSingleEventAlert(false)}
+                title="Single Workshop Purchase"
+            >
+                <div style={{ padding: '1rem' }}>
+                    <p style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                        For single workshop purchases, registering directly through the event is quicker and gives you immediate access. 
+                        It&apos;s the same registration process as this form, but faster for you!
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
+                        <button 
+                            onClick={handleGoToEvent}
+                            style={{
+                                padding: '0.75rem 1rem',
+                                backgroundColor: '#22c55e',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.95rem',
+                                fontWeight: '600'
+                            }}
+                        >
+                            Go to Event (Recommended)
+                        </button>
+                        <button 
+                            onClick={handleProceedWithForm}
+                            style={{
+                                padding: '0.75rem 1rem',
+                                backgroundColor: '#6b7280',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.95rem'
+                            }}
+                        >
+                            Continue with Form
+                        </button>
+                    </div>
+                </div>
             </Dialog>
         </>
     );

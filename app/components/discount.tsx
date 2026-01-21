@@ -26,11 +26,11 @@ export default function Discount({ selectedEvents, allEvents, onSelectAll, onDes
                 <h2 className="text-xl font-bold mb-3">Discounts for the New Year Sale</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                     <div className="text-left">
-                        <h3 className="font-semibold mb-2">Single Workshop</h3>
+                        <h3 className="font-semibold mb-2 underline">Single Workshop</h3>
                         <p>For single workshop purchases, please click 'Access Event' to use the built-in paywall within each event - this will give you immediate access.</p>
                     </div>
                     <div className="text-left">
-                        <h3 className="font-semibold mb-2">Multiple Workshops</h3>
+                        <h3 className="font-semibold mb-2 underline">Multiple Workshops</h3>
                         <ul className="list-disc list-inside space-y-1">
                             <li>All workshops 50% off</li>
                             <li>Buy 10 or more for another 10% off (total 60%)</li>
