@@ -24,11 +24,7 @@ export default function Discount({ selectedEvents, allEvents, onSelectAll, onDes
         <div className="discount-banner">
             <div className="discount-text">
                 <h2 className="text-xl font-bold mb-3">Discounts for the New Year Sale</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                    <div className="text-left">
-                        <h3 className="font-semibold mb-2 underline">Single Workshop</h3>
-                        <p>For single workshop purchases, please click 'Access Event' to use the built-in paywall within each event - this will give you immediate access.</p>
-                    </div>
+                <div className="flex flex-col items-center gap-4 text-xs">
                     <div className="text-left">
                         <h3 className="font-semibold mb-2 underline">Multiple Workshops</h3>
                         <ul className="list-disc list-inside space-y-1">
@@ -37,7 +33,7 @@ export default function Discount({ selectedEvents, allEvents, onSelectAll, onDes
                             <li>Buy all for another 10% off (total 70%)</li>
                         </ul>
                     </div>
-                    <div className="text-center flex items-center justify-center">
+                    <div className="text-center">
                         <button 
                             onClick={handleToggleAll}
                             className="select-all-button discount-select-button"

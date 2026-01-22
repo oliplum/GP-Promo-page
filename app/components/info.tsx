@@ -9,7 +9,10 @@ export default function Info() {
                 <div>
                     <p className="mb-2">We offer evidence-based CPD workshops for mental health professionals that are professional and outcome focussed.</p>
                     <p className="mb-2"><strong>Learn practical, clinically relevant skills from internationally respected presenters, and earn CPD hours; all now 50% off.</strong></p>
-                    <p className="mb-2">For instant access to individual events, please click the &apos;Access Event&apos; button, and use the paywall built into each event. For multiple purchases, please select your options below, and complete payment – we will endeavour to register you on your selections within 24 hours.</p>
+                    <h3 className="font-semibold mt-4 mb-2">Single Workshop</h3>
+                    <p className="mb-2">For instant access to individual events, please click the &apos;Access Event&apos; button, and use the paywall built into each event.</p>
+                    <h3 className="font-semibold mt-4 mb-2">Multiple Workshops</h3>
+                    <p className="mb-2">For multiple purchases, please choose below, and we will endeavour to register you within 24 hours.</p>
                 </div>
                 <div>
                     <ul className="list-disc pl-5 space-y-1 mb-4">

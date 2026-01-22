@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     // Get event details for the selected events
     const eventsResult = await client.query(
       `SELECT e.id, e.title, e.ticket_price, e.currency, e.event_no,
-              array_agg(p.title || ' ' || p.first_name || ' ' || p.last_name || COALESCE(' ' || p.honors, '')) as presenters
+              array_agg(COALESCE(p.title || ' ', '') || p.first_name || ' ' || p.last_name || COALESCE(' ' || p.honors, '')) as presenters
        FROM events e
        LEFT JOIN event_presenters ep ON e.id = ep.event_id
        LEFT JOIN presenters p ON ep.presenter_id = p.id
