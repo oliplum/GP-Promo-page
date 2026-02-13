@@ -29,19 +29,7 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
 
     // Calculate pricing
     const selectedEventData = allEvents.filter(e => selectedEvents.has(e.event.id));
-    const subtotal = selectedEventData.reduce((sum, e) => sum + parseFloat(e.ticketPrice || '0'), 0);
-
-    // Calculate discount tier
-    let discountPercent = 50; // Base 50% off
-    const totalEvents = allEvents.length;
-    if (selectedCount === totalEvents) {
-        discountPercent = 70; // All workshops: 70% off
-    } else if (selectedCount >= 10) {
-        discountPercent = 60; // 10+ workshops: 60% off
-    }
-
-    const discountAmount = subtotal * (discountPercent / 100);
-    const total = subtotal - discountAmount;
+    const total = selectedEventData.reduce((sum, e) => sum + parseFloat(e.ticketPrice || '0'), 0);
     const currency = allEvents.length > 0 ? allEvents[0].currency : 'USD';
 
     const handleNextClick = () => {
@@ -92,9 +80,6 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                 lastName: formData.lastName,
                 email: formData.email,
                 selectedEvents: Array.from(selectedEvents),
-                subtotal,
-                discountPercent,
-                discountAmount,
                 total,
                 currency
             };
@@ -143,14 +128,6 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                         <span className="cart-items">{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</span>
                     </div>
                     <div className="cart-pricing">
-                        <div className="cart-pricing-item">
-                            <span className="cart-label">Subtotal:</span>
-                            <span className="cart-amount">{currency} {subtotal.toFixed(2)}</span>
-                        </div>
-                        <div className="cart-pricing-item cart-discount-item">
-                            <span className="cart-label">Discount ({discountPercent}%):</span>
-                            <span className="cart-amount">-{currency} {discountAmount.toFixed(2)}</span>
-                        </div>
                         <div className="cart-pricing-item cart-total-item">
                             <span className="cart-label">Total:</span>
                             <span className="cart-amount">{currency} {total.toFixed(2)}</span>
@@ -246,25 +223,12 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
                                             {eventData.presenters.map((p: {title: string; first_name: string; last_name: string; honors?: string}) => `${p.title} ${p.first_name} ${p.last_name}${p.honors ? ` ${p.honors}` : ''}`).join(', ')}
                                         </div>
                                     )}
-                                    <div style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.2rem' }}>
-                                        <span style={{ textDecoration: 'line-through', marginRight: '0.5rem', color: '#999' }}>
-                                            {currency} {parseFloat(eventData.ticketPrice).toFixed(2)}
-                                        </span>
-                                        <span style={{ color: '#22c55e', fontWeight: '600' }}>
-                                            {currency} {(parseFloat(eventData.ticketPrice) * (1 - discountPercent / 100)).toFixed(2)}
-                                        </span>
+                                    <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.2rem', fontWeight: '600' }}>
+                                        {currency} {parseFloat(eventData.ticketPrice).toFixed(2)}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <p style={{ fontSize: '0.85rem', marginBottom: '0.4rem' }}>
-                            <span style={{ textDecoration: 'line-through', marginRight: '0.5rem' }}>
-                                Original: {currency} {subtotal.toFixed(2)}
-                            </span>
-                            <span style={{ color: '#22c55e', fontWeight: '600' }}>
-                                ({discountPercent}% off)
-                            </span>
-                        </p>
                         <p style={{ marginBottom: '0.5rem' }}><strong>Total: {currency} {total.toFixed(2)}</strong></p>
                         <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>{selectedCount} workshop{selectedCount !== 1 ? 's' : ''} selected</p>
                     </div>
@@ -282,8 +246,8 @@ export default function Cart({ selectedEvents, allEvents }: CartProps) {
             >
                 <div style={{ padding: '1rem' }}>
                     <p style={{ marginBottom: '1.25rem', fontSize: '0.95rem', lineHeight: '1.6' }}>
-                        For single workshop purchases, registering directly through each event directly is quicker and gives you immediate access. 
-                        It&apos;s the same registration - and discount - as this form (which is to enable multiple purchases), but faster for you!
+                        For single workshop purchases, registering directly through each event is quicker and gives you immediate access. 
+                        It&apos;s the same registration as this form (which is to enable multiple purchases), but faster for you!
                     </p>
                     <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
                         <button 
